@@ -1,0 +1,87 @@
+1.	import java.io.*;
+2.	import java.sql.*;
+3.	import java.util.*;
+4.	 
+5.	    public class PhoneBook {
+6.	    	public static String help_msg=	"Press: H Help - A Add contact - S Search - Q Exit :";
+7.	    		public static void main(String[] args)  {
+8.					Connection con=null;
+9.	    			try{    		       
+10.	    		            Class.forName("org.hsqldb.jdbc.JDBCDriver");
+11.	    		            con=DriverManager.getConnection("jdbc:hsqldb:mydb7","SA","");    		            
+12.	    		            con.createStatement().executeUpdate("SET DATABASE SQL SYNTAX MYS TRUE");   		            
+13.	    		            con.createStatement().executeUpdate("create table IF NOT EXISTS contacts ("+
+14.	    		            		"id int auto_increment primary key," +
+15.	    		            		"name varchar(45)," +
+16.	    		            		"lname varchar(45),"+
+17.	    		            		"phone varchar(45))");
+18.	 
+19.						    System.out.println("\n\n***** Welcome to MyPhone Book *****\n\n");
+20.						    Scanner s=new Scanner(System.in);	
+21.						    String command="";
+22.						    for(;;){
+23.							    System.out.print("[Main Menu] "+help_msg+"\n:");
+24.							    command=s.next().trim();	
+25.							    if (command.trim().isEmpty()){continue;}
+26.	 
+27.							    if (command.equalsIgnoreCase("H")){	
+28.							    	System.out.println(help_msg);
+29.							    /*
+30.							    * 	
+31.							    *Adding Contacts
+32.							    *
+33.							    */
+34.							    }else if (command.equalsIgnoreCase("A")){
+35.							    	System.out.print("Type in contact details in the format: name,lastname,phone\n:");
+36.								    for(;;){
+37.									    String data=s.next().trim();     
+38.									    String [] temp=data.split(",");
+39.									    if (temp.length!=3){
+40.										    System.out.println("Error, the insertion format should be in the format: firstname,lastname,phone :");
+41.										    continue;
+42.									    }
+43.									    con.createStatement().executeUpdate("insert into contacts (name,lname,phone) values" +
+44.																	"('"+temp[0]+"','"+temp[1]+"','"+temp[2]+"')");			    
+45.									    break;
+46.								    }
+47.								/*
+48.								* 	
+49.								*Searching for Contacts
+50.								*
+51.								*/							    
+52.							    }else if (command.equalsIgnoreCase("S")){
+53.							    	System.out.print("Type in the name you are searching for :\n:");
+54.							    	String data=s.next().trim();  
+55.	 
+56.							    	String q="select * from contacts  where name like '%"+data+"%' or lname like '%"+data+"%'";
+57.	 
+58.									PreparedStatement pst=con.prepareStatement(q);
+59.									pst.clearParameters();
+60.									ResultSet rs=pst.executeQuery();
+61.	 
+62.									System.out.println("********          Results          *********");
+63.									System.out.println("ID\t\tName\t\tLast Name\t\tPhone");
+64.									while(rs.next()){
+65.									    System.out.println(rs.getString(1)+"\t\t"+rs.getString(2)+"\t\t"+rs.getString(3)+"\t\t"+rs.getString(4));
+66.									}				    	
+67.							    /*
+68.							    * 	
+69.							    *Quiting the system
+70.							    *
+71.							    */						    	
+72.							    }else if (command.equalsIgnoreCase("Q")){
+73.								    Statement st = con.createStatement();
+74.							  	    st.execute("SHUTDOWN");
+75.							  	    con.close();  						    	
+76.								    System.out.println("Good Bye User....");
+77.								    System.exit(0);
+78.							    }else{	
+79.							    	System.out.print("Unknown command ! Try again: ["+command+"]\n");
+80.							    }     
+81.						    }    
+82.	 
+83.	    			}catch(Exception e){
+84.	    				e.printStackTrace();
+85.	    			}
+86.			}  
+87.	    }
